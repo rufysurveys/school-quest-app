@@ -1,7 +1,7 @@
 import { UserProfile, TeamType } from '../types';
 import { assignEquitableTeam } from '../data/teams';
 
-const USER_STORAGE_KEY = 'fct_school_quest_user';
+const USER_STORAGE_KEY = 'fct_school_quest_user_v2';
 
 export const BADGE_TIERS = [
   { name: '🌱 Novice Scholar', minXP: 0, level: 1 },
@@ -21,39 +21,22 @@ export function getTierForXP(xp: number) {
   return current;
 }
 
-export function getDefaultUser(): UserProfile {
-  const initialTeam: TeamType = assignEquitableTeam();
-  return {
-    id: 'user-' + Math.random().toString(36).substring(2, 9),
-    name: 'Aisha Bello',
-    email: 'aisha.bello@schools.fct.gov.ng',
-    role: 'student',
-    school: 'Loyola Jesuit College, Abuja',
-    isCustomSchool: false,
-    classLevel: 'SS1',
-    department: 'Science',
-    xp: 1450,
-    streak: 5,
-    lastActiveDate: new Date().toISOString(),
-    level: 2,
-    badges: ['🌱 Novice Scholar', '📘 Junior Specialist', '🔥 5-Day Streak'],
-    team: initialTeam,
-    bookmarks: []
-  };
-}
-
-export function loadUserProfile(): UserProfile {
+/**
+ * Loads stored user. Returns null if not registered or not yet email-verified.
+ */
+export function loadUserProfile(): UserProfile | null {
   try {
     const raw = localStorage.getItem(USER_STORAGE_KEY);
     if (raw) {
-      return JSON.parse(raw);
+      const user: UserProfile = JSON.parse(raw);
+      if (user && user.isVerified) {
+        return user;
+      }
     }
   } catch (err) {
     console.error('Failed to load user profile from storage', err);
   }
-  const defaultUser = getDefaultUser();
-  saveUserProfile(defaultUser);
-  return defaultUser;
+  return null;
 }
 
 export function saveUserProfile(user: UserProfile): void {
@@ -62,6 +45,19 @@ export function saveUserProfile(user: UserProfile): void {
   } catch (err) {
     console.error('Failed to save user profile', err);
   }
+}
+
+export function clearUserProfile(): void {
+  try {
+    localStorage.removeItem(USER_STORAGE_KEY);
+  } catch (err) {
+    console.error('Failed to clear user profile', err);
+  }
+}
+
+export function generateVerificationCode(): string {
+  // Generates 6-digit OTP
+  return Math.floor(100000 + Math.random() * 900000).toString();
 }
 
 export function calculateLevel(xp: number): number {

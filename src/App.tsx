@@ -12,7 +12,8 @@ import {
   Sparkles,
   ArrowRight,
   Compass,
-  CheckCircle2
+  Lock,
+  UserCheck
 } from 'lucide-react';
 import { Navbar } from './components/Navbar';
 import { WelcomeModal } from './components/WelcomeModal';
@@ -23,11 +24,11 @@ import { Leaderboard } from './components/Leaderboard';
 import { ScheduleView } from './components/ScheduleView';
 import { AdminPortal } from './components/AdminPortal';
 import { OperatingMode, UserProfile, ClassLevel, ScheduledMatch } from './types';
-import { loadUserProfile, saveUserProfile, calculateLevel } from './utils/gamification';
+import { loadUserProfile, saveUserProfile, clearUserProfile, calculateLevel } from './utils/gamification';
 import { TEAMS_INFO } from './data/teams';
 
 export function App() {
-  const [user, setUser] = useState<UserProfile>(loadUserProfile);
+  const [user, setUser] = useState<UserProfile | null>(loadUserProfile);
   const [currentMode, setCurrentMode] = useState<OperatingMode>('inter_team'); // Default mode: Inter-Team
   const [activeView, setActiveView] = useState<'dashboard' | 'quiz_arena' | 'schedule'>('dashboard');
 
@@ -46,22 +47,38 @@ export function App() {
   const [signUpOpen, setSignUpOpen] = useState(false);
   const [adminOpen, setAdminOpen] = useState(false);
 
-  // Check if first-time user to show welcome message
+  // If user is not authenticated or not verified, force registration
   useEffect(() => {
-    const hasSeenWelcome = localStorage.getItem('fct_quest_has_seen_welcome');
+    if (!user || !user.isVerified) {
+      setSignUpOpen(true);
+    }
+  }, [user]);
+
+  // Welcome modal trigger on first visit
+  useEffect(() => {
+    const hasSeenWelcome = localStorage.getItem('fct_quest_has_seen_welcome_v2');
     if (!hasSeenWelcome) {
       setWelcomeOpen(true);
-      localStorage.setItem('fct_quest_has_seen_welcome', 'true');
+      localStorage.setItem('fct_quest_has_seen_welcome_v2', 'true');
     }
   }, []);
 
-  const handleSaveUser = (updatedUser: UserProfile) => {
-    setUser(updatedUser);
-    saveUserProfile(updatedUser);
+  const handleAuthenticationSuccess = (verifiedUser: UserProfile) => {
+    setUser(verifiedUser);
+    saveUserProfile(verifiedUser);
+    setSignUpOpen(false);
+  };
+
+  const handleLogout = () => {
+    clearUserProfile();
+    setUser(null);
+    setSignUpOpen(true);
   };
 
   const handleUpdateXP = (earnedXP: number) => {
+    if (!user) return;
     setUser(prev => {
+      if (!prev) return null;
       const newXP = prev.xp + earnedXP;
       const newLevel = calculateLevel(newXP);
       const updated: UserProfile = {
@@ -82,11 +99,19 @@ export function App() {
     isProctored?: boolean;
     modeTitle?: string;
   }) => {
+    if (!user || !user.isVerified) {
+      setSignUpOpen(true);
+      return;
+    }
     setQuizParams(options);
     setActiveView('quiz_arena');
   };
 
   const handleJoinScheduledMatch = (match: ScheduledMatch) => {
+    if (!user || !user.isVerified) {
+      setSignUpOpen(true);
+      return;
+    }
     startQuizSession({
       subject: match.subject,
       classLevel: match.classLevel,
@@ -96,10 +121,106 @@ export function App() {
     });
   };
 
+  // If user is not registered / verified, display the Mandatory Registration Gateway
+  if (!user || !user.isVerified) {
+    return (
+      <div className="min-h-screen bg-slate-50 text-slate-800 flex flex-col justify-between selection:bg-emerald-500 selection:text-white">
+        
+        {/* Simple Unauthenticated Header */}
+        <header className="w-full bg-white border-b border-slate-200 py-4 px-6 shadow-sm">
+          <div className="max-w-7xl mx-auto flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-emerald-500 to-amber-500 flex items-center justify-center text-xl shadow-md">
+                🏆
+              </div>
+              <div>
+                <h1 className="text-base font-black text-slate-900 font-display">FCT ABUJA SECONDARY SCHOOLS QUEST</h1>
+                <p className="text-xs text-slate-500">Official Curriculum Gamification & Examination Arena</p>
+              </div>
+            </div>
+
+            <button
+              onClick={() => setWelcomeOpen(true)}
+              className="text-xs font-bold px-3 py-1.5 rounded-xl bg-emerald-50 text-emerald-800 border border-emerald-200 hover:bg-emerald-100 transition"
+            >
+              Read Welcome Message 🎮
+            </button>
+          </div>
+        </header>
+
+        {/* Gated Hero Landing Screen */}
+        <main className="max-w-4xl mx-auto px-4 py-12 text-center space-y-6 flex-1 flex flex-col items-center justify-center">
+          <div className="w-20 h-20 rounded-3xl bg-emerald-100 text-emerald-700 border border-emerald-200 flex items-center justify-center mx-auto shadow-sm">
+            <Lock className="w-10 h-10" />
+          </div>
+
+          <div className="space-y-2">
+            <span className="text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-full bg-amber-100 text-amber-900 border border-amber-300">
+              Registration Required to Enter Arena
+            </span>
+            <h2 className="text-3xl sm:text-4xl font-black text-slate-900 font-display">
+              Join Your Abuja School & Unlock The Arena
+            </h2>
+            <p className="text-sm text-slate-600 max-w-lg mx-auto leading-relaxed">
+              To participate in Inter-Team matches (Alpha, Beta, Omega), explore the FCT teaching schemes, and access proctored exams, please register your account with your email.
+            </p>
+          </div>
+
+          <div className="pt-2">
+            <button
+              onClick={() => setSignUpOpen(true)}
+              className="px-8 py-4 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm uppercase tracking-wider flex items-center gap-2 shadow-lg shadow-emerald-700/20 transition transform hover:-translate-y-0.5"
+            >
+              <UserCheck className="w-5 h-5" />
+              <span>Create Account & Verify Email</span>
+              <ArrowRight className="w-5 h-5" />
+            </button>
+          </div>
+
+          {/* School badges preview */}
+          <div className="pt-8 border-t border-slate-200 max-w-xl mx-auto text-xs text-slate-500">
+            <p className="font-semibold text-slate-700 mb-2">Featured Schools in Abuja:</p>
+            <div className="flex flex-wrap justify-center gap-2">
+              {['Little Sprout', 'Destiny Christian', 'Deeper Life High', 'Faith Academy', 'Stella Maris', 'Word of Faith', 'The Regent', 'Premiere Academy', 'FGBC Apo', 'FGGC Bwari', 'GSS Garki'].map((sch) => (
+                <span key={sch} className="px-2.5 py-1 rounded-lg bg-white border border-slate-200 shadow-2xs text-slate-700 font-medium">
+                  {sch}
+                </span>
+              ))}
+            </div>
+          </div>
+        </main>
+
+        <footer className="w-full bg-white border-t border-slate-200 py-4 text-center text-xs text-slate-500">
+          FCT Abuja Secondary Schools Quest • Official Curriculum Platform
+        </footer>
+
+        {/* Always rendered Sign Up Modal */}
+        <SignUpModal
+          isOpen={signUpOpen}
+          currentUser={user}
+          onAuthenticationSuccess={handleAuthenticationSuccess}
+          isGated={true}
+        />
+
+        <WelcomeModal
+          isOpen={welcomeOpen}
+          onClose={() => setWelcomeOpen(false)}
+          onOpenSignUp={() => {
+            setWelcomeOpen(false);
+            setSignUpOpen(true);
+          }}
+          isGated={true}
+        />
+
+      </div>
+    );
+  }
+
+  // Authenticated & Verified Layout
   const userTeam = TEAMS_INFO[user.team || 'Alpha'];
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col selection:bg-emerald-500 selection:text-white">
+    <div className="min-h-screen bg-slate-50 text-slate-800 flex flex-col selection:bg-emerald-500 selection:text-white">
       
       {/* Sticky Top Header */}
       <Navbar
@@ -113,6 +234,7 @@ export function App() {
         onOpenWelcome={() => setWelcomeOpen(true)}
         onOpenAdmin={() => setAdminOpen(true)}
         onOpenSchedule={() => setActiveView('schedule')}
+        onLogout={handleLogout}
       />
 
       {/* Main Content Arena */}
@@ -136,7 +258,7 @@ export function App() {
           <div className="space-y-6">
             <button
               onClick={() => setActiveView('dashboard')}
-              className="text-xs font-bold text-slate-400 hover:text-white flex items-center gap-1.5 transition"
+              className="text-xs font-bold text-slate-500 hover:text-slate-900 flex items-center gap-1.5 transition"
             >
               ← Back to Main Arena
             </button>
@@ -152,27 +274,27 @@ export function App() {
           <div className="space-y-8">
             
             {/* Hero Card with user uploaded photo & welcome message */}
-            <div className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-slate-900/90 to-emerald-950/60 border border-emerald-500/30 rounded-3xl p-6 sm:p-8 shadow-2xl">
+            <div className="relative overflow-hidden bg-gradient-to-br from-emerald-50/80 via-white to-amber-50/60 border border-emerald-200 rounded-3xl p-6 sm:p-8 shadow-sm">
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
                 
                 {/* Hero Text */}
                 <div className="lg:col-span-8 space-y-4">
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-extrabold flex items-center gap-1.5">
-                      <Sparkles className="w-3.5 h-3.5" />
+                    <span className="px-3 py-1 rounded-full bg-emerald-100 border border-emerald-300 text-emerald-800 text-xs font-bold flex items-center gap-1.5">
+                      <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
                       FCT Senior Secondary Teaching Scheme
                     </span>
-                    <span className={`px-3 py-1 rounded-full border text-xs font-extrabold ${userTeam.borderColor} ${userTeam.textColor} bg-slate-950/80`}>
+                    <span className={`px-3 py-1 rounded-full border border-slate-200 text-xs font-bold bg-white text-slate-900 shadow-sm`}>
                       {userTeam.badgeIcon} {userTeam.name}
                     </span>
                   </div>
 
-                  <h1 className="text-2xl sm:text-4xl font-black tracking-tight text-white font-display">
+                  <h1 className="text-2xl sm:text-4xl font-black tracking-tight text-slate-900 font-display">
                     Where Learning Meets Gaming! 🎮
                   </h1>
 
-                  <p className="text-sm md:text-base text-slate-300 leading-relaxed max-w-2xl">
-                    Challenge your classmates, compete with schools across Abuja, and master every unit of the <strong className="text-emerald-400">FCT Scheme of Work (SS1 - SS3)</strong> through game-show rounds and self-paced topic jumping.
+                  <p className="text-sm md:text-base text-slate-600 leading-relaxed max-w-2xl">
+                    Challenge your classmates, compete with schools across Abuja, and master every unit of the <strong className="text-emerald-700">FCT Scheme of Work (SS1 - SS3)</strong> through game-show rounds and self-paced topic jumping.
                   </p>
 
                   <div className="flex flex-wrap items-center gap-3 pt-2">
@@ -182,7 +304,7 @@ export function App() {
                         setCurrentMode('practice_hub');
                         setActiveView('dashboard');
                       }}
-                      className="px-5 py-3 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-black text-xs uppercase tracking-wider flex items-center gap-2 shadow-lg shadow-emerald-950/50 transition"
+                      className="px-5 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs uppercase tracking-wider flex items-center gap-2 shadow-md shadow-emerald-700/20 transition"
                     >
                       <Compass className="w-4 h-4" />
                       <span>Jump to Practice Topics</span>
@@ -199,7 +321,7 @@ export function App() {
                           modeTitle: `Inter-Team Match: ${userTeam.name}`
                         });
                       }}
-                      className="px-5 py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs uppercase tracking-wider flex items-center gap-2 shadow-lg shadow-amber-950/40 transition"
+                      className="px-5 py-3 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-black text-xs uppercase tracking-wider flex items-center gap-2 shadow-sm transition"
                     >
                       <Users className="w-4 h-4" />
                       <span>Play for {user.team} Team</span>
@@ -216,9 +338,9 @@ export function App() {
                           modeTitle: `Proctored Academic Championship (${user.classLevel})`
                         });
                       }}
-                      className="px-5 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-blue-300 font-bold text-xs uppercase tracking-wider border border-blue-500/30 flex items-center gap-2 transition"
+                      className="px-5 py-3 rounded-xl bg-white hover:bg-slate-50 text-blue-700 font-bold text-xs uppercase tracking-wider border border-blue-300 flex items-center gap-2 transition shadow-sm"
                     >
-                      <ShieldCheck className="w-4 h-4 text-blue-400" />
+                      <ShieldCheck className="w-4 h-4 text-blue-600" />
                       <span>Proctored Exam Arena</span>
                     </button>
                   </div>
@@ -226,7 +348,7 @@ export function App() {
 
                 {/* Hero User Visual */}
                 <div className="lg:col-span-4 flex justify-center">
-                  <div className="relative group w-full max-w-xs rounded-2xl overflow-hidden border-2 border-emerald-500/40 shadow-2xl shadow-emerald-500/20">
+                  <div className="relative group w-full max-w-xs rounded-2xl overflow-hidden border-2 border-emerald-400 shadow-xl shadow-emerald-600/10">
                     <img
                       src="/hero_welcome.jpg"
                       alt="Student Learning Arena"
@@ -235,9 +357,9 @@ export function App() {
                         (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1546410531-bb4caa6b424d?auto=format&fit=crop&w=800&q=80';
                       }}
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-transparent to-transparent pointer-events-none" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-slate-900/70 via-transparent to-transparent pointer-events-none" />
                     <div className="absolute bottom-3 left-3 right-3 text-center">
-                      <span className="text-xs font-bold text-emerald-300 bg-slate-950/90 px-3 py-1 rounded-full border border-emerald-400/30 backdrop-blur-md">
+                      <span className="text-xs font-bold text-slate-900 bg-white/95 px-3 py-1 rounded-full border border-emerald-300 shadow-sm">
                         {user.school}
                       </span>
                     </div>
@@ -267,20 +389,20 @@ export function App() {
       </main>
 
       {/* Footer */}
-      <footer className="w-full bg-slate-950 border-t border-slate-900 py-6 mt-12 text-center text-xs text-slate-500">
+      <footer className="w-full bg-white border-t border-slate-200 py-6 mt-12 text-center text-xs text-slate-500">
         <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <div className="flex items-center gap-2 text-slate-400">
-            <School className="w-4 h-4 text-emerald-400" />
+          <div className="flex items-center gap-2 text-slate-600">
+            <School className="w-4 h-4 text-emerald-600" />
             <span>FCT Abuja Secondary Schools Quest • Official Curriculum Platform</span>
           </div>
           <div className="flex items-center gap-4 text-slate-500">
             <span>SS1, SS2 & SS3 Teaching Schemes</span>
             <span>•</span>
-            <button onClick={() => setWelcomeOpen(true)} className="hover:text-emerald-400 underline">
+            <button onClick={() => setWelcomeOpen(true)} className="hover:text-emerald-700 underline">
               Welcome Guide
             </button>
             <span>•</span>
-            <button onClick={() => setAdminOpen(true)} className="hover:text-purple-400 underline">
+            <button onClick={() => setAdminOpen(true)} className="hover:text-purple-700 underline">
               Admin Portal
             </button>
           </div>
@@ -292,6 +414,7 @@ export function App() {
         isOpen={welcomeOpen}
         onClose={() => setWelcomeOpen(false)}
         onOpenSignUp={() => setSignUpOpen(true)}
+        isGated={false}
       />
 
       {/* Sign Up / Edit Profile Modal */}
@@ -299,7 +422,8 @@ export function App() {
         isOpen={signUpOpen}
         onClose={() => setSignUpOpen(false)}
         currentUser={user}
-        onSaveUser={handleSaveUser}
+        onAuthenticationSuccess={handleAuthenticationSuccess}
+        isGated={false}
       />
 
       {/* Admin / Teacher Portal */}

@@ -19,6 +19,7 @@ export interface UserProfile {
   id: string;
   name: string;
   email: string;
+  password?: string;
   role: UserRole;
   school: string;
   isCustomSchool?: boolean;
@@ -32,6 +33,8 @@ export interface UserProfile {
   badges: string[];
   team: TeamType;
   bookmarks: string[]; // Question IDs
+  isVerified: boolean;
+  verificationCode?: string;
 }
 
 export interface Question {

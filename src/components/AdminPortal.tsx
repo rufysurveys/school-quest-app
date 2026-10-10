@@ -3,12 +3,9 @@ import {
   Settings, 
   PlusCircle, 
   Download, 
-  Trash2, 
   CheckCircle2, 
-  Users, 
   BookOpen, 
-  School,
-  X
+  X 
 } from 'lucide-react';
 import { SCHEME_QUESTIONS } from '../data/schemeQuestions';
 import { INITIAL_STUDENT_LEADERBOARD } from '../data/leaderboards';
@@ -94,34 +91,34 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md animate-fadeIn">
-      <div className="relative w-full max-w-4xl max-h-[90vh] overflow-y-auto bg-slate-900 border border-purple-500/30 rounded-3xl p-6 md:p-8 shadow-2xl text-slate-100">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md animate-fadeIn">
+      <div className="relative w-full max-w-4xl max-h-[90vh] overflow-y-auto bg-white border border-slate-200 rounded-3xl p-6 md:p-8 shadow-2xl text-slate-800">
         
         {/* Header Close */}
         <button
           onClick={onClose}
-          className="absolute top-5 right-5 p-2 text-slate-400 hover:text-white rounded-full bg-slate-800 hover:bg-slate-700 transition"
+          className="absolute top-5 right-5 p-2 text-slate-400 hover:text-slate-600 rounded-full bg-slate-100 hover:bg-slate-200 transition"
         >
           <X className="w-5 h-5" />
         </button>
 
         <div className="flex items-center gap-3 mb-6">
-          <span className="p-3 rounded-2xl bg-purple-500/10 border border-purple-500/20 text-purple-400">
+          <span className="p-3 rounded-2xl bg-purple-100 text-purple-700 border border-purple-200">
             <Settings className="w-6 h-6" />
           </span>
           <div>
-            <h2 className="text-xl md:text-2xl font-black text-white">
+            <h2 className="text-xl md:text-2xl font-black text-slate-900 font-display">
               Instructor & Admin Management Portal
             </h2>
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-slate-500">
               Manage FCT curriculum questions, export school academic metrics, and supervise teams
             </p>
           </div>
         </div>
 
         {notification && (
-          <div className="mb-4 p-3 rounded-xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-xs font-bold flex items-center gap-2">
-            <CheckCircle2 className="w-4 h-4" />
+          <div className="mb-4 p-3 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-800 text-xs font-bold flex items-center gap-2">
+            <CheckCircle2 className="w-4 h-4 text-emerald-600" />
             <span>{notification}</span>
           </div>
         )}
@@ -130,45 +127,45 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
           <button
             onClick={handleExportCSV}
-            className="p-4 rounded-2xl bg-slate-800/80 border border-slate-700 hover:border-emerald-500/50 flex items-center justify-between text-left transition"
+            className="p-4 rounded-2xl bg-slate-50 border border-slate-200 hover:border-emerald-400 flex items-center justify-between text-left transition shadow-sm"
           >
             <div>
-              <p className="text-xs font-black uppercase text-emerald-400 flex items-center gap-1.5 mb-1">
+              <p className="text-xs font-black uppercase text-emerald-700 flex items-center gap-1.5 mb-1">
                 <Download className="w-4 h-4" /> Export Analytics
               </p>
-              <h4 className="text-sm font-bold text-white">Export Performance CSV</h4>
-              <p className="text-xs text-slate-400">Download student scores & school rankings</p>
+              <h4 className="text-sm font-bold text-slate-900">Export Performance CSV</h4>
+              <p className="text-xs text-slate-500">Download student scores & school rankings</p>
             </div>
-            <span className="text-xs px-3 py-1.5 rounded-lg bg-emerald-600/20 text-emerald-300 font-bold">
+            <span className="text-xs px-3 py-1.5 rounded-lg bg-emerald-600 text-white font-bold shadow-sm">
               Download
             </span>
           </button>
 
-          <div className="p-4 rounded-2xl bg-slate-800/80 border border-slate-700 flex items-center justify-between">
+          <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-between shadow-sm">
             <div>
-              <p className="text-xs font-black uppercase text-amber-400 flex items-center gap-1.5 mb-1">
-                <BookOpen className="w-4 h-4" /> Repository Count
+              <p className="text-xs font-black uppercase text-amber-750 flex items-center gap-1.5 mb-1 text-amber-800">
+                <BookOpen className="w-4 h-4 text-amber-600" /> Repository Count
               </p>
-              <h4 className="text-sm font-bold text-white">{questionsList.length} Scheme Questions</h4>
-              <p className="text-xs text-slate-400">Covering SS1, SS2, and SS3 Teaching Schemes</p>
+              <h4 className="text-sm font-bold text-slate-900">{questionsList.length} Scheme Questions</h4>
+              <p className="text-xs text-slate-500">Covering SS1, SS2, and SS3 Teaching Schemes</p>
             </div>
           </div>
         </div>
 
         {/* Add Question Section */}
-        <div className="bg-slate-950/60 border border-slate-800 rounded-2xl p-5 mb-6">
-          <h3 className="text-sm font-black uppercase tracking-wider text-purple-400 mb-4 flex items-center gap-1.5">
-            <PlusCircle className="w-4 h-4" /> Add Question to Scheme Database
+        <div className="bg-slate-50 border border-slate-200 rounded-2xl p-5 mb-6">
+          <h3 className="text-sm font-black uppercase tracking-wider text-purple-800 mb-4 flex items-center gap-1.5">
+            <PlusCircle className="w-4 h-4 text-purple-600" /> Add Question to Scheme Database
           </h3>
 
           <form onSubmit={handleAddQuestion} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
               <div>
-                <label className="block text-[11px] font-medium text-slate-400 mb-1">Subject</label>
+                <label className="block text-[11px] font-semibold text-slate-700 mb-1">Subject</label>
                 <select
                   value={newSubject}
                   onChange={(e) => setNewSubject(e.target.value)}
-                  className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-500"
+                  className="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-900 focus:outline-none focus:border-purple-600 shadow-sm"
                 >
                   <option value="General Mathematics">General Mathematics</option>
                   <option value="English Studies">English Studies</option>
@@ -183,11 +180,11 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
               </div>
 
               <div>
-                <label className="block text-[11px] font-medium text-slate-400 mb-1">Class Level</label>
+                <label className="block text-[11px] font-semibold text-slate-700 mb-1">Class Level</label>
                 <select
                   value={newClass}
                   onChange={(e) => setNewClass(e.target.value as ClassLevel)}
-                  className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-500"
+                  className="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-900 focus:outline-none focus:border-purple-600 shadow-sm"
                 >
                   <option value="SS1">SS1</option>
                   <option value="SS2">SS2</option>
@@ -196,80 +193,80 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
               </div>
 
               <div>
-                <label className="block text-[11px] font-medium text-slate-400 mb-1">Topic in Scheme</label>
+                <label className="block text-[11px] font-semibold text-slate-700 mb-1">Topic in Scheme</label>
                 <input
                   type="text"
                   required
                   value={newTopic}
                   onChange={(e) => setNewTopic(e.target.value)}
                   placeholder="e.g. Logarithms (II)"
-                  className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-500"
+                  className="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-900 focus:outline-none focus:border-purple-600 shadow-sm"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-[11px] font-medium text-slate-400 mb-1">Question Prompt</label>
+              <label className="block text-[11px] font-semibold text-slate-700 mb-1">Question Prompt</label>
               <textarea
                 required
                 rows={2}
                 value={newQuestionText}
                 onChange={(e) => setNewQuestionText(e.target.value)}
                 placeholder="Enter full question text here..."
-                className="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-xs text-white focus:outline-none focus:border-purple-500"
+                className="w-full bg-white border border-slate-300 rounded-xl p-3 text-xs text-slate-900 focus:outline-none focus:border-purple-600 shadow-sm"
               />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <div>
-                <label className="block text-[11px] font-medium text-slate-400 mb-1">Option A</label>
+                <label className="block text-[11px] font-semibold text-slate-700 mb-1">Option A</label>
                 <input
                   type="text"
                   required
                   value={optionA}
                   onChange={(e) => setOptionA(e.target.value)}
-                  className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white"
+                  className="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-900 shadow-sm"
                 />
               </div>
               <div>
-                <label className="block text-[11px] font-medium text-slate-400 mb-1">Option B</label>
+                <label className="block text-[11px] font-semibold text-slate-700 mb-1">Option B</label>
                 <input
                   type="text"
                   required
                   value={optionB}
                   onChange={(e) => setOptionB(e.target.value)}
-                  className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white"
+                  className="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-900 shadow-sm"
                 />
               </div>
               <div>
-                <label className="block text-[11px] font-medium text-slate-400 mb-1">Option C</label>
+                <label className="block text-[11px] font-semibold text-slate-700 mb-1">Option C</label>
                 <input
                   type="text"
                   required
                   value={optionC}
                   onChange={(e) => setOptionC(e.target.value)}
-                  className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white"
+                  className="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-900 shadow-sm"
                 />
               </div>
               <div>
-                <label className="block text-[11px] font-medium text-slate-400 mb-1">Option D</label>
+                <label className="block text-[11px] font-semibold text-slate-700 mb-1">Option D</label>
                 <input
                   type="text"
                   required
                   value={optionD}
                   onChange={(e) => setOptionD(e.target.value)}
-                  className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white"
+                  className="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-900 shadow-sm"
                 />
               </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <div>
-                <label className="block text-[11px] font-medium text-slate-400 mb-1">Correct Answer</label>
+                <label className="block text-[11px] font-semibold text-slate-700 mb-1">Correct Answer</label>
                 <select
                   value={correctOptionIdx}
                   onChange={(e) => setCorrectOptionIdx(Number(e.target.value))}
-                  className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white"
+                  className="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-900 shadow-sm"
                 >
                   <option value={0}>Option A</option>
                   <option value={1}>Option B</option>
@@ -279,20 +276,20 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
               </div>
 
               <div>
-                <label className="block text-[11px] font-medium text-slate-400 mb-1">Explanation / Pedagogical Note</label>
+                <label className="block text-[11px] font-semibold text-slate-700 mb-1">Explanation</label>
                 <input
                   type="text"
                   value={explanation}
                   onChange={(e) => setExplanation(e.target.value)}
                   placeholder="Why is this answer correct?"
-                  className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white"
+                  className="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-900 shadow-sm"
                 />
               </div>
             </div>
 
             <button
               type="submit"
-              className="px-5 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs flex items-center gap-1.5 transition"
+              className="px-5 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs flex items-center gap-1.5 transition shadow-sm"
             >
               <PlusCircle className="w-4 h-4" />
               <span>Save Question to Scheme Bank</span>
