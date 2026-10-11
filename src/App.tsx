@@ -121,13 +121,22 @@ export function App() {
     });
   };
 
-  // If user is not registered / verified, display the Mandatory Registration Gateway
+  // If user is not registered / verified, display the Mandatory Registration Gateway with Background Image
   if (!user || !user.isVerified) {
     return (
-      <div className="min-h-screen bg-slate-50 text-slate-800 flex flex-col justify-between selection:bg-emerald-500 selection:text-white">
+      <div className="relative min-h-screen text-slate-800 flex flex-col justify-between overflow-hidden selection:bg-emerald-500 selection:text-white">
         
-        {/* Simple Unauthenticated Header */}
-        <header className="w-full bg-white border-b border-slate-200 py-4 px-6 shadow-sm">
+        {/* Full Screen Background Image */}
+        <div 
+          className="fixed inset-0 bg-cover bg-center bg-no-repeat transform scale-105"
+          style={{ backgroundImage: `url('/signup_bg.jpg')` }}
+        />
+        
+        {/* Overlay for pristine contrast */}
+        <div className="fixed inset-0 bg-gradient-to-tr from-slate-950/80 via-emerald-950/60 to-slate-900/85 backdrop-blur-[5px]" />
+
+        {/* Simple Top Bar */}
+        <header className="relative z-10 w-full bg-white/90 backdrop-blur-md border-b border-white/20 py-4 px-6 shadow-md">
           <div className="max-w-7xl mx-auto flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-emerald-500 to-amber-500 flex items-center justify-center text-xl shadow-md">
@@ -135,13 +144,13 @@ export function App() {
               </div>
               <div>
                 <h1 className="text-base font-black text-slate-900 font-display">FCT ABUJA SECONDARY SCHOOLS QUEST</h1>
-                <p className="text-xs text-slate-500">Official Curriculum Gamification & Examination Arena</p>
+                <p className="text-xs text-slate-500 font-medium">Official Curriculum Gamification & Examination Arena</p>
               </div>
             </div>
 
             <button
               onClick={() => setWelcomeOpen(true)}
-              className="text-xs font-bold px-3 py-1.5 rounded-xl bg-emerald-50 text-emerald-800 border border-emerald-200 hover:bg-emerald-100 transition"
+              className="text-xs font-bold px-3.5 py-1.5 rounded-xl bg-emerald-50 text-emerald-800 border border-emerald-300 hover:bg-emerald-100 transition shadow-xs"
             >
               Read Welcome Message 🎮
             </button>
@@ -149,40 +158,53 @@ export function App() {
         </header>
 
         {/* Gated Hero Landing Screen */}
-        <main className="max-w-4xl mx-auto px-4 py-12 text-center space-y-6 flex-1 flex flex-col items-center justify-center">
-          <div className="w-20 h-20 rounded-3xl bg-emerald-100 text-emerald-700 border border-emerald-200 flex items-center justify-center mx-auto shadow-sm">
+        <main className="relative z-10 max-w-4xl mx-auto px-4 py-12 text-center space-y-6 flex-1 flex flex-col items-center justify-center">
+          
+          <div className="w-20 h-20 rounded-3xl bg-white/95 border-2 border-emerald-400 text-emerald-700 flex items-center justify-center mx-auto shadow-2xl animate-pulse">
             <Lock className="w-10 h-10" />
           </div>
 
-          <div className="space-y-2">
-            <span className="text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-full bg-amber-100 text-amber-900 border border-amber-300">
+          <div className="space-y-3">
+            <span className="text-xs font-extrabold uppercase tracking-wider px-4 py-1.5 rounded-full bg-amber-400 text-slate-950 shadow-md">
               Registration Required to Enter Arena
             </span>
-            <h2 className="text-3xl sm:text-4xl font-black text-slate-900 font-display">
+            <h2 className="text-3xl sm:text-5xl font-black text-white font-display drop-shadow-md">
               Join Your Abuja School & Unlock The Arena
             </h2>
-            <p className="text-sm text-slate-600 max-w-lg mx-auto leading-relaxed">
-              To participate in Inter-Team matches (Alpha, Beta, Omega), explore the FCT teaching schemes, and access proctored exams, please register your account with your email.
+            <p className="text-sm sm:text-base text-slate-200 max-w-xl mx-auto leading-relaxed drop-shadow">
+              To participate in Inter-Team matches (Alpha, Beta, Omega), explore FCT teaching schemes, and access proctored exams, please create your account with email confirmation.
             </p>
           </div>
 
           <div className="pt-2">
             <button
               onClick={() => setSignUpOpen(true)}
-              className="px-8 py-4 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm uppercase tracking-wider flex items-center gap-2 shadow-lg shadow-emerald-700/20 transition transform hover:-translate-y-0.5"
+              className="px-8 py-4 rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-sm uppercase tracking-wider flex items-center gap-2 shadow-2xl shadow-emerald-500/40 transition transform hover:-translate-y-1"
             >
-              <UserCheck className="w-5 h-5" />
+              <UserCheck className="w-5 h-5 text-slate-950" />
               <span>Create Account & Verify Email</span>
               <ArrowRight className="w-5 h-5" />
             </button>
           </div>
 
           {/* School badges preview */}
-          <div className="pt-8 border-t border-slate-200 max-w-xl mx-auto text-xs text-slate-500">
-            <p className="font-semibold text-slate-700 mb-2">Featured Schools in Abuja:</p>
+          <div className="pt-6 border-t border-white/20 max-w-2xl mx-auto text-xs">
+            <p className="font-bold text-emerald-300 mb-2.5">Featured Abuja Secondary Schools:</p>
             <div className="flex flex-wrap justify-center gap-2">
-              {['Little Sprout', 'Destiny Christian', 'Deeper Life High', 'Faith Academy', 'Stella Maris', 'Word of Faith', 'The Regent', 'Premiere Academy', 'FGBC Apo', 'FGGC Bwari', 'GSS Garki'].map((sch) => (
-                <span key={sch} className="px-2.5 py-1 rounded-lg bg-white border border-slate-200 shadow-2xs text-slate-700 font-medium">
+              {[
+                'Little Sprout International',
+                'Destiny Christian Academy',
+                'Deeper Life High School',
+                'Faith Academy',
+                'Stella Maris Schools',
+                'Word of Faith',
+                'The Regent Secondary',
+                'Premiere Academy',
+                'FGBC Apo',
+                'FGGC Bwari',
+                'GSS Garki'
+              ].map((sch) => (
+                <span key={sch} className="px-3 py-1 rounded-xl bg-white/90 backdrop-blur-md border border-white/40 shadow-sm text-slate-800 font-bold">
                   {sch}
                 </span>
               ))}
@@ -190,11 +212,11 @@ export function App() {
           </div>
         </main>
 
-        <footer className="w-full bg-white border-t border-slate-200 py-4 text-center text-xs text-slate-500">
+        <footer className="relative z-10 w-full bg-white/90 backdrop-blur-md border-t border-white/20 py-4 text-center text-xs text-slate-600 font-medium">
           FCT Abuja Secondary Schools Quest • Official Curriculum Platform
         </footer>
 
-        {/* Always rendered Sign Up Modal */}
+        {/* Gated SignUpModal */}
         <SignUpModal
           isOpen={signUpOpen}
           currentUser={user}
@@ -240,7 +262,7 @@ export function App() {
       {/* Main Content Arena */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-8">
         
-        {/* VIEW 1: QUIZ ARENA (Practice, Regular, or Proctored) */}
+        {/* VIEW 1: QUIZ ARENA */}
         {activeView === 'quiz_arena' && (
           <QuizArena
             initialSubject={quizParams.subject}
@@ -273,7 +295,7 @@ export function App() {
         {activeView === 'dashboard' && (
           <div className="space-y-8">
             
-            {/* Hero Card with user uploaded photo & welcome message */}
+            {/* Hero Card */}
             <div className="relative overflow-hidden bg-gradient-to-br from-emerald-50/80 via-white to-amber-50/60 border border-emerald-200 rounded-3xl p-6 sm:p-8 shadow-sm">
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
                 
@@ -298,7 +320,6 @@ export function App() {
                   </p>
 
                   <div className="flex flex-wrap items-center gap-3 pt-2">
-                    {/* Practice Topic Jumper Action */}
                     <button
                       onClick={() => {
                         setCurrentMode('practice_hub');
@@ -310,7 +331,6 @@ export function App() {
                       <span>Jump to Practice Topics</span>
                     </button>
 
-                    {/* Default Inter-Team Match Action */}
                     <button
                       onClick={() => {
                         startQuizSession({
@@ -327,7 +347,6 @@ export function App() {
                       <span>Play for {user.team} Team</span>
                     </button>
 
-                    {/* Proctored Exam Mode */}
                     <button
                       onClick={() => {
                         startQuizSession({
