@@ -7,7 +7,9 @@ import {
   Users, 
   School, 
   Home, 
-  ShieldCheck
+  ShieldCheck,
+  User,
+  Sparkles
 } from 'lucide-react';
 import { OperatingMode, UserProfile } from '../types';
 import { INITIAL_SCHOOL_RANKINGS, INITIAL_STUDENT_LEADERBOARD } from '../data/leaderboards';
@@ -17,12 +19,14 @@ interface LeaderboardProps {
   currentMode: OperatingMode;
   onSelectMode: (mode: OperatingMode) => void;
   user: UserProfile;
+  onViewUserProfile: (name: string) => void;
 }
 
 export const Leaderboard: React.FC<LeaderboardProps> = ({
   currentMode,
   onSelectMode,
-  user
+  user,
+  onViewUserProfile
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState<'All' | 'Government' | 'Federal Unity' | 'Private'>('All');
@@ -40,11 +44,11 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
   });
 
   const intraSchoolClasses = [
-    { name: `${user.classLevel} - Diamond Stream`, points: 34500, students: 38, accuracy: 91.4, rank: 1 },
-    { name: `${user.classLevel} - Emerald Stream`, points: 32100, students: 35, accuracy: 89.2, rank: 2 },
-    { name: `${user.classLevel} - Gold Stream`, points: 30800, students: 36, accuracy: 87.8, rank: 3 },
-    { name: `SS2 - Alpha Stream`, points: 28900, students: 34, accuracy: 86.5, rank: 4 },
-    { name: `SS3 - Honours Stream`, points: 27500, students: 32, accuracy: 85.0, rank: 5 }
+    { name: `SS1 vs SS2 Battle Stream`, points: 34500, students: 38, accuracy: 91.4, rank: 1, type: 'Class Clash' },
+    { name: `SS3 Science vs Commercial Stream`, points: 32100, students: 35, accuracy: 89.2, rank: 2, type: 'Stream Clash' },
+    { name: `JSS2 vs JSS3 Academic Derby`, points: 30800, students: 36, accuracy: 87.8, rank: 3, type: 'Junior Clash' },
+    { name: `SS2 - Alpha Stream`, points: 28900, students: 34, accuracy: 86.5, rank: 4, type: 'Inter-Stream' },
+    { name: `SS3 - Honours Stream`, points: 27500, students: 32, accuracy: 85.0, rank: 5, type: 'Inter-Stream' }
   ];
 
   return (
@@ -56,7 +60,7 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
           <div className="space-y-2">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-100 border border-amber-300 text-amber-900 text-xs font-bold">
               <Trophy className="w-3.5 h-3.5 text-amber-600" />
-              <span>Abuja Academic Championships & Standings</span>
+              <span>Abuja Academic Championships & Standings (JSS1 - SS3)</span>
             </div>
             <h1 className="text-2xl md:text-3xl font-black text-slate-900 font-display">
               {currentMode === 'inter_team' && 'Inter-Team Tournament Standings (Default)'}
@@ -65,7 +69,7 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
               {currentMode === 'individual_league' && 'Individual Student League of Excellence'}
             </h1>
             <p className="text-xs md:text-sm text-slate-600 max-w-2xl">
-              Track real-time XP, accuracy percentages, and performance metrics across teams, schools, and individual scholars.
+              Track real-time XP, accuracy percentages, and performance metrics across teams, schools, and individual scholars. Click on any student's name to view their gaming journey and won matches!
             </p>
           </div>
 
@@ -122,12 +126,9 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
         </div>
       </div>
 
-      {/* ============================================================
-          VIEW 1: INTER-TEAM MODE (DEFAULT OPTION)
-          ============================================================ */}
+      {/* VIEW 1: INTER-TEAM MODE (DEFAULT OPTION) */}
       {currentMode === 'inter_team' && (
         <div className="space-y-6">
-          
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {INITIAL_TEAM_SCORES.map((teamData) => {
               const meta = TEAMS_INFO[teamData.team];
@@ -151,7 +152,7 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
                   <div className="flex items-center justify-between mb-4">
                     <span className="text-4xl">{meta.badgeIcon}</span>
                     <span className="text-xs font-mono font-bold px-2.5 py-1 rounded-lg bg-slate-100 text-slate-700">
-                      {teamData.memberCount} Scholars
+                      {teamData.memberCount} Contenders
                     </span>
                   </div>
 
@@ -164,9 +165,9 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
 
                   <div className="space-y-3 pt-3 border-t border-slate-100">
                     <div className="flex items-center justify-between text-xs">
-                      <span className="text-slate-500">Total Team XP:</span>
+                      <span className="text-slate-500">Average Team Score:</span>
                       <span className="font-black text-amber-700 text-sm">
-                        {teamData.totalXP.toLocaleString()} XP
+                        {Math.round(teamData.totalXP / teamData.memberCount)} pts / member
                       </span>
                     </div>
 
@@ -196,27 +197,19 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
             })}
           </div>
 
-          {/* Equitable Balancing Notice */}
           <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-sm flex items-start gap-3 text-xs text-slate-600">
             <ShieldCheck className="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5" />
             <p>
-              <strong className="text-slate-900">Equitable Roster Distribution:</strong> To ensure fairness in inter-school competitions, participants are distributed equally across Team Alpha, Beta, and Omega upon joining any scheduled match or tournament session. All members contribute directly to their team's live championship standings.
+              <strong className="text-slate-900">Fair Average Scoring & Auto-Balancing:</strong> Teams Alpha, Omega, and Beta receive equitably balanced players when joining any scheduled competition. The final team score is calculated as the arithmetic average of all active team members' points.
             </p>
           </div>
-
         </div>
       )}
 
-      {/* ============================================================
-          VIEW 2: INTER-SCHOOL MODE
-          ============================================================ */}
+      {/* VIEW 2: INTER-SCHOOL MODE */}
       {currentMode === 'inter_school' && (
         <div className="space-y-8">
-          
-          {/* Top 3 Podiums */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end pt-6">
-            
-            {/* 2nd Place */}
             {filteredSchools[1] && (
               <div className="order-2 md:order-1 bg-white border border-slate-200 rounded-3xl p-6 text-center space-y-2 shadow-sm">
                 <div className="w-12 h-12 mx-auto rounded-2xl bg-slate-100 flex items-center justify-center text-xl text-slate-600 font-bold">
@@ -227,13 +220,9 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
                 <div className="pt-2 text-emerald-700 font-black text-lg">
                   {filteredSchools[1].totalXP.toLocaleString()} XP
                 </div>
-                <span className="inline-block text-[10px] px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-600 font-semibold">
-                  {filteredSchools[1].accuracyRate}% Accuracy
-                </span>
               </div>
             )}
 
-            {/* 1st Place */}
             {filteredSchools[0] && (
               <div className="order-1 md:order-2 bg-gradient-to-t from-amber-50 to-white border-2 border-amber-400 rounded-3xl p-8 text-center space-y-2 transform md:-translate-y-4 shadow-md">
                 <Crown className="w-8 h-8 text-amber-500 mx-auto animate-bounce" />
@@ -245,13 +234,9 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
                 <div className="pt-2 text-amber-700 font-black text-2xl">
                   {filteredSchools[0].totalXP.toLocaleString()} XP
                 </div>
-                <span className="inline-block text-[11px] px-3 py-1 rounded-full bg-amber-100 text-amber-900 border border-amber-300 font-bold">
-                  {filteredSchools[0].badge}
-                </span>
               </div>
             )}
 
-            {/* 3rd Place */}
             {filteredSchools[2] && (
               <div className="order-3 bg-white border border-slate-200 rounded-3xl p-6 text-center space-y-2 shadow-sm">
                 <div className="w-12 h-12 mx-auto rounded-2xl bg-amber-100/60 flex items-center justify-center text-xl text-amber-800 font-bold">
@@ -262,43 +247,10 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
                 <div className="pt-2 text-amber-600 font-black text-lg">
                   {filteredSchools[2].totalXP.toLocaleString()} XP
                 </div>
-                <span className="inline-block text-[10px] px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-600 font-semibold">
-                  {filteredSchools[2].accuracyRate}% Accuracy
-                </span>
               </div>
             )}
-
           </div>
 
-          {/* Search & Category Filter */}
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
-            <div className="relative w-full sm:w-80">
-              <Search className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search schools by name or area..."
-                className="w-full bg-white border border-slate-300 rounded-xl pl-9 pr-3 py-2 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:border-emerald-600 shadow-sm"
-              />
-            </div>
-
-            <div className="flex items-center gap-1.5 bg-white p-1 rounded-xl border border-slate-200 shadow-sm w-full sm:w-auto overflow-x-auto">
-              {(['All', 'Private', 'Federal Unity', 'Government'] as const).map(cat => (
-                <button
-                  key={cat}
-                  onClick={() => setCategoryFilter(cat)}
-                  className={`px-3 py-1 rounded-lg text-xs font-semibold transition whitespace-nowrap ${
-                    categoryFilter === cat ? 'bg-emerald-600 text-white' : 'text-slate-600 hover:text-slate-900'
-                  }`}
-                >
-                  {cat}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Complete Schools Table */}
           <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs text-slate-700">
@@ -313,52 +265,24 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
-                  {filteredSchools.map((sch) => {
-                    const isUserSchool = user.school === sch.name;
-                    return (
-                      <tr 
-                        key={sch.id}
-                        className={`hover:bg-slate-50 transition ${
-                          isUserSchool ? 'bg-emerald-50/70 border-l-4 border-l-emerald-600 font-semibold' : ''
-                        }`}
-                      >
-                        <td className="py-3.5 px-4 font-mono font-bold text-slate-900">
-                          #{sch.rank}
-                        </td>
-                        <td className="py-3.5 px-4">
-                          <div>
-                            <span className="font-bold text-slate-900 block">{sch.name}</span>
-                            <span className="text-[11px] text-slate-500">{sch.location}</span>
-                          </div>
-                        </td>
-                        <td className="py-3.5 px-4">
-                          <span className="px-2 py-0.5 rounded-md bg-slate-100 text-[11px] font-semibold text-slate-700 border border-slate-200">
-                            {sch.category}
-                          </span>
-                        </td>
-                        <td className="py-3.5 px-4 text-center font-mono">
-                          {sch.studentCount}
-                        </td>
-                        <td className="py-3.5 px-4 text-right font-bold text-emerald-700">
-                          {sch.accuracyRate}%
-                        </td>
-                        <td className="py-3.5 px-4 text-right font-black text-amber-700">
-                          {sch.totalXP.toLocaleString()} XP
-                        </td>
-                      </tr>
-                    );
-                  })}
+                  {filteredSchools.map((sch) => (
+                    <tr key={sch.id} className="hover:bg-slate-50 transition">
+                      <td className="py-3.5 px-4 font-mono font-bold text-slate-900">#{sch.rank}</td>
+                      <td className="py-3.5 px-4 font-bold text-slate-900">{sch.name}</td>
+                      <td className="py-3.5 px-4">{sch.category}</td>
+                      <td className="py-3.5 px-4 text-center font-mono">{sch.studentCount}</td>
+                      <td className="py-3.5 px-4 text-right font-bold text-emerald-700">{sch.accuracyRate}%</td>
+                      <td className="py-3.5 px-4 text-right font-black text-amber-700">{sch.totalXP.toLocaleString()} XP</td>
+                    </tr>
+                  ))}
                 </tbody>
               </table>
             </div>
           </div>
-
         </div>
       )}
 
-      {/* ============================================================
-          VIEW 3: INTRA-SCHOOL MODE
-          ============================================================ */}
+      {/* VIEW 3: INTRA-SCHOOL MODE */}
       {currentMode === 'intra_school' && (
         <div className="space-y-6">
           <div className="bg-white border border-cyan-200 rounded-2xl p-4 flex items-center justify-between shadow-sm">
@@ -367,7 +291,7 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
               <h3 className="text-lg font-black text-slate-900 font-display">{user.school}</h3>
             </div>
             <span className="text-xs px-3 py-1 rounded-xl bg-cyan-50 text-cyan-800 border border-cyan-200 font-bold">
-              Class vs Class Arena
+              Class vs Class / Stream Clashes
             </span>
           </div>
 
@@ -382,13 +306,16 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
                     #{item.rank}
                   </div>
                   <div>
+                    <span className="text-[10px] font-black uppercase text-cyan-700 bg-cyan-50 px-2 py-0.5 rounded-full border border-cyan-200 inline-block mb-1">
+                      {item.type}
+                    </span>
                     <h4 className="text-sm font-bold text-slate-900">{item.name}</h4>
-                    <p className="text-[11px] text-slate-500">{item.students} Active Students • {item.accuracy}% Accuracy</p>
+                    <p className="text-[11px] text-slate-500">{item.students} Contenders • {item.accuracy}% Accuracy</p>
                   </div>
                 </div>
                 <div className="text-right">
                   <span className="text-sm font-black text-cyan-800">{item.points.toLocaleString()}</span>
-                  <span className="text-[10px] text-slate-500 block font-medium">Class XP</span>
+                  <span className="text-[10px] text-slate-500 block font-medium">Avg Score</span>
                 </div>
               </div>
             ))}
@@ -396,16 +323,15 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
         </div>
       )}
 
-      {/* ============================================================
-          VIEW 4: INDIVIDUAL LEAGUE
-          ============================================================ */}
+      {/* VIEW 4: INDIVIDUAL LEAGUE (CLICK TO VIEW PROFILE) */}
       {currentMode === 'individual_league' && (
         <div className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {filteredStudents.map((std) => (
               <div
                 key={std.id}
-                className="bg-white border border-slate-200 rounded-2xl p-4 flex items-center justify-between hover:border-purple-300 transition shadow-sm"
+                onClick={() => onViewUserProfile(std.name)}
+                className="bg-white border border-slate-200 rounded-2xl p-4 flex items-center justify-between hover:border-purple-400 hover:shadow-md cursor-pointer transition shadow-sm"
               >
                 <div className="flex items-center gap-3.5">
                   <div className="w-10 h-10 rounded-2xl bg-purple-100 text-purple-800 border border-purple-200 flex items-center justify-center font-black text-sm">
@@ -413,7 +339,7 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
                   </div>
                   <div>
                     <div className="flex items-center gap-2">
-                      <h4 className="text-sm font-bold text-slate-900">{std.name}</h4>
+                      <h4 className="text-sm font-bold text-slate-900 hover:text-purple-700 transition">{std.name}</h4>
                       <span className="text-xs text-amber-700 font-bold flex items-center gap-0.5">
                         <Flame className="w-3 h-3 text-amber-500" /> {std.streak}d
                       </span>
@@ -422,7 +348,7 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
                       {std.school} ({std.classLevel})
                     </p>
                     <span className="text-[10px] text-purple-700 font-semibold">
-                      {std.badge}
+                      {std.badge} • Click to View Journey 👤
                     </span>
                   </div>
                 </div>

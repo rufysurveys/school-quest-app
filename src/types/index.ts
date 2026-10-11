@@ -25,6 +25,9 @@ export interface UserProfile {
   isCustomSchool?: boolean;
   classLevel: ClassLevel;
   department: Department;
+  classType?: 'Science' | 'Art' | 'Commercial';
+  avatarId?: string;
+  avatarCustomUrl?: string;
   teachingSubject?: string;
   xp: number;
   streak: number;
@@ -35,6 +38,9 @@ export interface UserProfile {
   bookmarks: string[]; // Question IDs
   isVerified: boolean;
   verificationCode?: string;
+  verificationToken?: string;
+  matchesPlayed?: number;
+  matchesWon?: number;
 }
 
 export interface Question {
@@ -107,4 +113,10 @@ export interface ScheduledMatch {
   betaPoints: number;
   omegaPoints: number;
   winnerTeam?: TeamType;
+  scope?: OperatingMode;
+  roomCode?: string;
+  maxParticipants?: number;
+  intraFilter?: string;
+  schoolA?: string;
+  schoolB?: string;
 }
