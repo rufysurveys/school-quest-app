@@ -12,6 +12,8 @@ const PORT = process.env.PORT || 5001;
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 
+app.get('/api/health', (req, res) => res.json({ status: 'ok', time: new Date().toISOString() }));
+
 // Helper: Setup Nodemailer Transporter with Gmail
 function getEmailTransporter() {
   // Check DB for dynamic SMTP config first, then environment variables
